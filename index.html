@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link type=text/css rel=stylesheet href="/stylesheets/main.css">
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<title>IS SWERAP World Cup Betting</title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Magnus Lööf">
+	<!-- Date: 2010-06-15 -->
+</head>
+<body>
+	<div id=userDiv>
+		<div id=userName>{{user.nickname}}</div>
+		<div id=logoutDiv><a href="{{logout_url}}">Logout</a></div>
+	</div>
+	<div id=gamesDiv>
+		{% for game in games %}
+			<div class=game onclick="alert('{{game.key}}');">{{game.gameTime}} - {{game.homeTeamID.displayName}} - {{game.awayTeamID.displayName}} : {% if game.played %} {{game.homeGoals}} - {{game.awayGoals}} {% else %} TBD {% endif %}</div>
+		{% endfor%}
+	</div>
+</body>
+</html>

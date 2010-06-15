@@ -1,0 +1,15 @@
+application: world-cup-bet
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+    - url: /favicon.ico
+      static_files: images/favicon.ico
+      upload: images/favicon.ico
+    - url: /stylesheets
+      static_dir: stylesheets
+    - url: /lib
+      static_dir: lib
+    - url: .*
+      script: main.py
