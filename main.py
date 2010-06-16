@@ -27,6 +27,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import login_required
+from google.appengine.api.labs import taskqueue
 
 class TeamModel(db.Model):
 	displayName = db.StringProperty()
@@ -147,6 +148,7 @@ class ScoreHandler(webapp.RequestHandler):
 			
 			games = GameModel.gql("WHERE played = true")
 			for game in games:
+				logging.debug(game.homeTeam.displayName + "-" + game.awayTeam.displayName)
 				for bet in game.betmodel_set:
 					score = 0
 					punter = bet.punter
@@ -169,146 +171,202 @@ class ScoreHandler(webapp.RequestHandler):
 					if game.homeGoals == bet.homeGoals and game.awayGoals == bet.awayGoals:
 						score += 4
 					
-					self.response.out.write(punter.displayName)
-					self.response.out.write(score)
-					
 					bet.score = score
 					bet.put()
 					
 					punter.score += score
 					punter.put()
 					
-					self.redirect('/')
+			self.redirect('/')
 					
+class BasicDataHandler2(webapp.RequestHandler):
+	def get(self):
+		taskqueue.add(url='/basicdataloadWorker')
+		self.redirect('/')
 
 class BasicDataHandler(webapp.RequestHandler):
 	"""docstring for BasicDataHandler"""
 	@login_required
 	def get(self):
 		if not users.is_current_user_admin():
-			self.redirect('/')
+			self.error(401)
 		else:
 			q = db.GqlQuery("SELECT __key__ FROM GameModel")
 			for game in q:
 				db.delete(game)
-
 			q = db.GqlQuery("SELECT __key__ FROM TeamModel")
 			for team in q:
 				db.delete(team)
-
 			q = db.GqlQuery("SELECT __key__ FROM PunterModel")
 			for punter in q:
 				db.delete(punter)
-
 			q = db.GqlQuery("SELECT __key__ FROM BetModel")
 			for bet in q:
 				db.delete(bet)
-				
-			teams = ["Algeriet", 
+			teams = ["Algeria", 
 					"Argentina", 
-					"Australien", 
+					"Australia", 
 					"Brazil",
-					"Kamerun",
+					"Cameroon",
 					"Chile",
-					"Elfenbenskusten",
-					"Danmark",
+					"Cote d'Ivoire",
+					"Denmark",
 					"England",
 					"France",
-					"Tyskland",
+					"Germany",
 					"Ghana",
-					"Grekland",
+					"Greece",
 					"Honduras",
-					"Italien",
+					"Italy",
 					"Japan",
-					"Nordkorea",
-					"Sydkorea",
+					"Korea DPR",
+					"Korea Republic",
 					"Mexico",
-					"Holland",
-					"Nya Zeeland",
+					"Netherlands",
+					"New Zealand",
 					"Nigeria",
 					"Paraguay",
 					"Portugal",
-					"Serbien",
-					"Slovakien"
-					"Slovenien",
-					"Sydafrika",
-					"Spanien",
-					"Schweiz",
+					"Serbia",
+					"Spain",
+					"Slovakia",
+					"Slovenia",
+					"South Africa",
+					"Switzerland",
 					"Uruguay",
 					"USA"]
-			
+		
 			teamlist = {}
-			
+		
 			for team in teams:
 				tmp = TeamModel()
 				tmp.displayName = team
 				tmp.put()
 				teamlist[team] = tmp
-			
-			gameslist = [("Algeriet","Argentina","2010-06-11 12:30"),
-						("Italien", "Nordkorea", "2010-06-12 13:30")]
-			
-			for game in gameslist:
-				home = game[0]
-				away = game[1]
-				date = game[2]
-				game = GameModel()
-				game.homeTeam = teamlist[home]
-				game.awayTeam = teamlist[away]
-				game.gameTime = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
-				game.put()
-				
+					
+			gameslist = [("South Africa","Mexico","Jun 11, 2010 13:30"),
+						("Uruguay","France","Jun 12, 2010 16:00"),
+						("Argentina","Nigeria","Jun 12, 2010 13:30"),
+						("Korea Republic","Greece","Jun 12, 2010 20:30"),
+						("England","USA","Jun 13, 2010 16:00"),
+						("Algeria","Slovenia","Jun 13, 2010 20:30"),
+						("Germany","Australia","Jun 14, 2010 16:00"),
+						("Serbia","Ghana","Jun 13, 2010 13:30"),
+						("Netherlands","Denmark","Jun 14, 2010 20:30"),
+						("Japan","Cameroon","Jun 14, 2010 13:30"),
+						("Italy","Paraguay","Jun 15, 2010 16:00"),
+						("New Zealand","Slovakia","Jun 15, 2010 20:30"),
+						("Cote d'Ivoire","Portugal","Jun 15, 2010 13:30"),
+						("Brazil","Korea DPR","Jun 16, 2010 16:00"),
+						("Honduras","Chile","Jun 16, 2010 20:30"),
+						("Spain","Switzerland","Jun 16, 2010 13:30"),
+						("South Africa","Uruguay","Jun 17, 2010 16:00"),
+						("France","Mexico","Jun 18, 2010 16:00"),
+						("Greece","Nigeria","Jun 17, 2010 13:30"),
+						("Argentina","Korea Republic","Jun 17, 2010 20:30"),
+						("Germany","Serbia","Jun 18, 2010 20:30"),
+						("Slovenia","USA","Jun 18, 2010 13:30"),
+						("England","Algeria","Jun 19, 2010 16:00"),
+						("Ghana","Australia","Jun 19, 2010 13:30"),
+						("Netherlands","Japan","Jun 19, 2010 20:30"),
+						("Cameroon","Denmark","Jun 20, 2010 16:00"),
+						("Slovakia","Paraguay","Jun 20, 2010 20:30"),
+						("Italy","New Zealand","Jun 20, 2010 13:30"),
+						("Brazil","Cote d'Ivoire","Jun 21, 2010 16:00"),
+						("Portugal","Korea DPR","Jun 21, 2010 20:30"),
+						("Chile","Switzerland","Jun 21, 2010 13:30"),
+						("Spain","Honduras","Jun 22, 2010 16:00"),
+						("Mexico","Uruguay","Jun 22, 2010 13:30"),
+						("France","South Africa","Jun 22, 2010 13:30"),
+						("Nigeria","Korea Republic","Jun 23, 2010 16:00"),
+						("Greece","Argentina","Jun 23, 2010 16:00"),
+						("Slovenia","England","Jun 23, 2010 13:30"),
+						("USA","Algeria","Jun 23, 2010 13:30"),
+						("Ghana","Germany","Jun 24, 2010 16:00"),
+						("Australia","Serbia","Jun 24, 2010 16:00"),
+						("Slovakia","Italy","Jun 25, 2010 16:00"),
+						("Paraguay","New Zealand","Jun 25, 2010 16:00"),
+						("Denmark","Japan","Jun 24, 2010 13:30"),
+						("Cameroon","Netherlands","Jun 24, 2010 13:30"),
+						("Portugal","Brazil","Jun 25, 2010 13:30"),
+						("Korea DPR","Cote d'Ivoire","Jun 25, 2010 13:30"),
+						("Chile","Spain","Jun 26, 2010 16:00"),
+						("Switzerland","Honduras","Jun 26, 2010 16:00"),
+			]
+		
 			punters = ["Gosta G","Lasse Dahl","Marina S","Thomas Hedstom","Hakan Jarl","Anders Astrom","Peter Tuveland","Johnny Nilsson","Helene Spals","Cecilia B","Mats kjellberg","Henke S","Jerker N","Leif Jonsson","Jonas Karlsson","Janne Jonsson","Andreas Lundstrom","Magnus Loof","Kim W","Hjalmar Wallander","Johan Berg","Andreas Ohrn","Peter Lofgren","Magnus Larsson","Magnus Jansson","Ingemar Gardell","Tommy Lund","Anders Haglund","Nicklas Haglund","Fredrik Jansson","Peter Bentinger","Johan Wallander","Andreas Karstrom"]
-			
+			punterlist = {}
+		
 			for punter in punters:
 				tmp = PunterModel()
 				tmp.displayName = punter
 				tmp.put()
-				
-			den = teamlist["Algeriet"]
-			swe = teamlist["Argentina"]
-			bra = teamlist["Brazil"]
-			por = teamlist["Australien"]
+				punterlist[punter] = tmp
+		
+			bets = [1,1,1,0,1,1,1,1,0,4,1,2,0,2,0,2,1,2,1,3,2,0,1,1,0,1,1,1,1,1,1,1,2,2,1,1,0,2,0,1,0,2,1,3,1,2,1,2,1,2,0,2,1,2,1,2,1,1,0,1,1,2,1,2,1,2,
+					3,0,4,0,3,1,4,0,5,0,2,0,3,1,4,0,2,0,3,0,3,1,2,0,2,0,5,0,4,0,2,0,3,0,2,0,4,1,1,0,2,0,4,1,4,0,3,0,2,0,1,0,3,0,4,0,6,0,4,0,5,0,4,0,3,0,
+					1,2,0,0,1,1,1,2,0,0,0,1,1,1,1,2,1,1,1,1,1,1,0,2,0,0,1,2,0,2,0,1,1,2,0,1,1,2,0,0,1,1,0,2,1,1,1,1,0,0,1,1,1,2,0,1,1,2,0,1,0,2,2,0,2,2,
+					2,1,2,0,2,1,3,0,3,1,3,1,3,0,3,1,3,0,2,1,2,1,3,0,3,0,2,0,2,0,3,0,2,1,3,1,2,0,1,0,3,1,3,0,2,0,2,1,1,0,3,0,2,0,3,1,3,1,2,1,3,1,1,0,3,0,
+					1,1,1,0,1,1,1,1,2,1,1,0,1,1,1,1,1,0,2,0,1,1,1,1,0,1,0,1,0,0,1,1,1,1,1,0,1,1,0,0,2,1,0,1,1,0,1,1,1,1,0,1,2,2,0,2,0,1,0,1,1,1,1,0,1,1,
+					2,1,2,1,3,1,1,1,3,1,0,1,1,0,1,0,1,1,4,2,1,2,1,1,0,1,1,1,1,1,0,0,1,2,0,1,2,2,1,0,1,1,1,0,1,1,0,1,0,1,1,1,1,2,1,1,1,1,2,0,2,1,2,1,2,2,
+					0,2,0,2,1,0,1,2,1,2,0,1,0,1,1,2,0,2,2,2,5,0,0,1,0,1,0,1,0,2,0,1,0,1,0,2,1,2,0,0,1,2,0,2,0,0,0,2,0,1,2,1,0,3,1,1,0,2,0,2,0,1,0,1,1,3,
+					4,1,2,0,2,0,2,0,3,1,2,0,1,0,3,0,1,1,3,1,4,0,1,0,2,1,2,1,2,1,3,1,3,2,2,1,5,0,0,0,2,0,3,0,2,0,3,1,2,0,2,1,2,0,3,1,2,1,3,0,4,0,2,0,3,1,
+					2,0,1,1,2,1,1,1,3,0,2,0,3,0,2,1,3,1,4,1,3,1,1,1,2,0,1,1,3,0,2,1,3,1,3,1,4,1,1,0,2,1,3,1,3,1,1,0,2,0,3,1,3,1,4,1,3,1,2,1,2,1,3,1,3,1,
+					1,2,1,2,1,0,1,3,1,2,0,0,0,1,1,1,0,1,2,1,2,1,1,2,0,1,1,2,1,2,0,1,1,2,1,2,2,2,0,0,0,3,1,2,0,1,1,1,0,1,1,1,0,1,0,0,0,0,0,1,0,1,1,2,1,1,
+					3,0,3,0,2,0,2,0,3,1,1,0,1,0,1,0,2,0,1,1,1,1,1,0,1,0,3,0,2,0,2,0,3,0,2,1,2,0,1,0,3,0,5,0,2,0,0,1,1,1,2,0,2,0,2,0,2,1,5,1,3,1,2,0,3,1,
+					1,2,1,1,0,1,1,1,3,1,1,0,1,1,1,2,0,1,3,2,0,0,2,0,0,0,1,0,1,0,1,1,1,1,1,1,1,2,0,0,2,1,2,0,1,1,2,0,1,1,0,0,1,2,2,0,1,0,2,1,1,1,1,0,2,0,
+					4,1,3,0,5,1,2,0,3,0,1,0,2,1,2,0,3,1,4,0,2,0,2,1,3,0,2,0,2,0,3,0,2,1,2,0,2,0,0,0,3,1,3,0,2,0,2,1,1,1,2,0,1,0,3,2,2,1,3,1,4,1,2,0,4,0,
+					1,2,1,2,2,3,0,2,3,1,1,1,1,1,1,1,0,2,2,3,1,3,1,2,0,2,1,1,1,1,1,2,0,3,1,0,1,1,0,0,1,2,2,1,1,0,1,1,1,0,0,1,1,2,0,2,0,0,1,1,2,2,2,1,2,1,
+					1,2,0,0,2,2,1,2,1,1,0,0,0,1,1,0,0,2,1,1,2,1,0,0,0,1,0,1,1,0,1,1,3,1,0,0,0,2,0,0,1,1,0,2,0,0,2,2,1,2,1,2,2,2,1,1,0,1,0,1,0,2,1,3,1,1,
+					2,1,2,1,2,1,2,0,3,2,2,0,2,0,2,0,2,0,3,1,1,1,3,0,1,0,2,0,2,1,2,0,3,0,1,0,2,0,1,0,2,1,3,0,2,0,2,0,1,0,2,0,2,1,3,0,3,0,1,0,4,0,4,1,2,0,
+					1,1,3,1,3,2,2,0,2,0,2,0,4,0,3,0,4,0,2,0,3,0,1,2,1,0,2,1,2,1,1,1,2,2,3,0,3,0,1,0,3,0,3,0,3,1,2,1,3,0,3,0,2,0,2,2,2,1,2,1,5,1,3,0,3,2,
+					3,0,2,0,2,1,3,1,2,0,2,0,2,0,3,0,3,0,3,0,1,1,3,0,1,0,3,1,2,0,2,0,4,1,2,0,3,1,1,0,3,0,1,1,3,0,1,2,2,1,2,1,1,0,4,0,4,1,2,0,3,1,2,0,3,1,
+					1,2,1,1,0,1,1,1,1,2,0,0,0,1,1,1,0,1,1,1,1,4,2,1,1,0,0,0,1,1,1,1,0,0,2,1,1,1,0,0,2,1,1,1,2,1,0,1,1,1,1,0,1,1,1,1,1,0,0,1,3,1,2,1,1,2,
+					3,0,2,1,2,0,3,0,3,0,2,0,2,1,4,1,2,0,4,0,1,2,4,0,2,1,3,0,1,0,3,0,3,1,3,2,2,1,1,0,2,2,4,0,2,0,3,0,2,0,1,0,2,0,3,0,1,0,4,0,2,0,3,1,3,1,
+					1,1,0,0,1,2,1,1,1,1,1,0,1,1,1,2,1,1,2,2,1,1,0,1,0,0,1,0,1,2,1,1,2,2,2,1,1,0,0,0,2,1,1,2,1,1,1,1,1,2,1,1,2,2,1,1,1,1,1,1,0,1,1,1,1,1,
+					1,1,3,1,3,2,2,2,2,2,1,0,2,1,1,1,1,1,3,1,2,0,1,2,0,1,2,1,1,1,1,0,3,2,1,2,2,0,0,0,2,2,2,0,1,1,1,2,1,0,2,1,1,0,3,0,2,1,2,1,1,0,2,1,2,1,
+					2,1,2,1,2,1,2,0,2,1,0,0,1,2,1,0,2,0,1,1,3,0,0,2,1,1,1,1,2,0,1,1,1,2,0,1,1,0,0,0,3,0,1,0,1,1,1,1,1,1,0,2,1,2,1,0,1,2,3,2,2,0,2,1,2,0,
+					0,3,0,2,0,2,1,2,1,2,0,2,0,2,0,2,0,3,0,4,2,1,1,3,0,2,1,2,0,2,0,3,1,4,0,2,1,3,0,1,2,2,0,3,1,2,0,4,0,2,0,3,0,3,1,3,1,3,0,4,0,2,0,2,0,3,
+					0,3,1,1,0,1,0,2,1,3,0,2,0,1,1,2,0,2,2,1,1,2,0,0,1,2,1,1,0,2,0,2,0,1,1,1,1,2,0,1,1,2,0,4,1,1,2,1,1,2,1,1,1,2,0,2,0,1,1,3,0,2,1,3,1,2,
+					2,1,3,1,1,0,3,1,2,1,1,0,1,0,2,1,1,0,2,1,1,1,3,0,1,0,2,0,2,0,2,0,1,0,2,1,2,0,0,0,2,0,3,0,2,2,1,0,2,0,2,2,1,0,1,0,1,1,1,0,0,1,2,1,1,1,
+					0,2,1,2,1,3,1,5,1,3,0,2,1,2,1,3,0,5,1,4,0,3,1,2,0,1,0,2,1,2,0,3,1,2,0,3,1,3,0,0,1,1,0,3,1,3,1,3,0,3,1,3,1,2,0,4,0,2,0,2,1,3,1,3,1,4,
+					1,1,0,2,1,3,1,2,0,2,0,1,1,1,0,2,0,1,1,3,2,1,0,2,0,0,1,1,0,0,0,2,1,2,1,1,0,1,0,0,1,0,1,2,1,1,1,2,2,1,0,1,0,0,0,0,1,1,0,0,1,1,2,1,0,1,
+					1,3,1,1,0,2,0,2,2,3,1,2,1,2,0,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,2,1,0,1,0,2,0,1,0,2,0,2,1,2,1,1,1,2,1,2,0,1,1,2,1,1,0,1,0,2,1,2,1,2,
+					2,2,3,2,1,1,2,1,2,1,0,0,1,0,1,0,2,0,1,2,1,1,0,0,2,0,1,0,2,0,1,0,2,0,2,0,2,0,0,0,2,2,2,0,2,0,2,1,2,0,1,0,2,0,2,1,2,1,2,1,4,0,2,1,3,0,
+					1,0,3,1,2,1,2,0,2,1,1,1,1,1,2,1,2,1,2,2,1,2,1,1,1,0,1,1,1,0,1,0,2,2,1,1,1,1,0,0,2,0,0,1,0,0,1,0,1,1,2,2,1,0,2,2,0,1,0,0,2,2,2,1,2,0,
+					1,3,2,3,2,5,0,2,1,2,0,2,1,2,1,3,0,2,0,1,1,1,2,2,1,2,0,3,1,3,1,3,1,3,1,3,0,2,0,1,2,2,0,2,2,1,2,2,1,2,0,2,1,3,1,3,0,2,0,2,1,1,1,0,2,1,
+					1,1,1,2,2,1,2,2,2,2,1,2,1,2,1,2,2,2,3,2,2,4,1,1,1,1,2,2,2,2,1,2,1,1,1,1,2,2,0,0,3,2,2,2,1,2,2,3,1,3,1,1,2,2,1,2,1,2,1,1,1,2,1,3,1,3,
+					1,2,0,2,1,1,1,2,1,2,0,0,2,1,1,1,0,0,3,3,1,0,1,2,0,1,0,2,0,3,0,3,0,3,1,1,0,1,0,0,1,1,1,0,0,2,1,2,2,0,0,1,1,3,0,3,0,2,1,2,0,1,1,2,1,3,
+					1,3,0,1,2,3,0,3,1,3,0,1,1,2,1,2,0,2,2,4,1,2,1,1,0,2,1,3,0,1,0,2,1,4,1,3,1,2,0,0,1,2,0,2,1,2,0,2,1,3,1,2,2,2,1,2,1,3,1,3,1,2,1,2,0,2,
+					2,1,1,1,2,1,1,0,3,1,0,0,0,1,3,0,1,1,1,2,2,1,2,1,0,0,1,0,1,0,2,1,1,2,0,0,1,1,0,0,1,2,3,0,0,0,2,1,3,0,1,0,1,0,1,1,1,1,0,0,0,0,1,1,0,1,]
+		
+			betcursor = 0
+			gamecursor = 0
+		
+			for game in gameslist:
+				home = game[0]
+				away = game[1]
+				date = game[2]
+				gameobj = GameModel()
+				gameobj.homeTeam = teamlist[home]
+				gameobj.awayTeam = teamlist[away]
+				gameobj.gameTime = datetime.datetime.strptime(date, "%b %d, %Y %H:%M")
+				gameobj.put()
+				gamecursor += 1
+			
+				if gamecursor > 12:
+					for punter in punters:
+						logging.debug(punter + ": " + gameobj.homeTeam.displayName + ":" + gameobj.awayTeam.displayName)
+						bet = BetModel()
+						bet.game = gameobj
+						bet.punter = punterlist[punter]
+						bet.homeGoals = bets[betcursor]
+						betcursor += 1
+						bet.awayGoals = bets[betcursor]
+						betcursor += 1
+						bet.put()
+		self.redirect('/')
 
-			game1 = GameModel()
-			game1.homeTeam = den.key()
-			game1.awayTeam = swe.key()
-			game1.played = True
-			game1.homeGoals = 1
-			game1.awayGoals = 3
-			game1.gameTime = datetime.datetime(2010,06,07,12,15)
-			game1.put()
-			
-			game2 = GameModel()
-			game2.homeTeam = bra.key()
-			game2.awayTeam = por.key()
-			game2.played = False
-			game2.gameTime = datetime.datetime(2010,06,9,12,15)
-			game2.put()
-			
-			malo = PunterModel()
-			malo.displayName = "Magnus Loof"
-			malo.put()
-			
-			bet = BetModel()
-			bet.game = game1
-			bet.punter = malo.key()
-			bet.homeGoals = 1
-			bet.awayGoals = 3
-			bet.put()
-			
-			niha = PunterModel()
-			niha.displayName = "Nicklas Haglund"
-			niha.put()
-			
-			bet = BetModel()
-			bet.game = game1
-			bet.punter = niha
-			bet.homeGoals = 1
-			bet.awayGoals = 2
-			bet.put()
-			
-			self.redirect('/')
 
 class MainHandler(webapp.RequestHandler):
 	def get(self):
@@ -322,7 +380,7 @@ class MainHandler(webapp.RequestHandler):
 		
 		#logging.debug(loginurl)
 		games = GameModel.gql('ORDER BY gameTime')
-		punters = PunterModel.gql('ORDER by displayName')
+		punters = PunterModel.gql('ORDER by score DESC')
 		bets = BetModel.all()
 		leaderboard = LeaderBoardModel.gql('ORDER BY score')
 		
@@ -344,7 +402,7 @@ def main():
 	('/bets',BetsHandler),
 	('/games',GamesHandler),
 	('/basicdataload', BasicDataHandler),
-	('/calculatescore', ScoreHandler)], debug=True)
+	('/calculatescore', ScoreHandler),], debug=True)
 	
 	logging.getLogger().setLevel(logging.DEBUG)
 	
