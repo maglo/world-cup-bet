@@ -365,6 +365,7 @@ class BasicDataHandler(webapp.RequestHandler):
 						bet.awayGoals = bets[betcursor]
 						betcursor += 1
 						bet.put()
+		
 		self.redirect('/')
 
 

@@ -11,5 +11,7 @@ handlers:
       static_dir: stylesheets
     - url: /lib
       static_dir: lib
+    - url: /remote_api
+      script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
     - url: .*
       script: main.py
