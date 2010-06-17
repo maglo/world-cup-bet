@@ -149,7 +149,7 @@ class BetsHandler(webapp.RequestHandler):
 		
 class GamesHandler(webapp.RequestHandler):
 	def get(self):
-		games = GameModel.all()
+		games = GameModel.gql('ORDER BY ordinal')
 		
 		user = users.get_current_user()
 		if user:
