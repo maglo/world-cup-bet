@@ -1,11 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-	<div id=gamesDiv>
-	<h2>Games</h2>
-		{% for game in games %}
-			<div class=game>{{game.gameTime}} - {% if isAdmin %}<a href="/games?gameID={{game.key}}">{% endif %}{{game.homeTeam.displayName}} - {{game.awayTeam.displayName}}{% if isAdmin %}</a>{% endif %} : {% if game.played %} {{game.homeGoals}} - {{game.awayGoals}} {% else %} TBD {% endif %}</div>
-		{% endfor%}
-	</div>
 	<div id=puntersDiv>
 	<h2>Leaderboard</h2>
 		{% for punter in punters %}

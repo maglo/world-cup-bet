@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+	<div id=gamesDiv>
+	<h2>Games</h2>
+	<table>
+		{% for game in games %}
+			<tr>
+				<td>{{game.gameTime}}</td><td><a href='bets?gameID={{game.key}}'>{{game.homeTeam.displayName}} - {{game.awayTeam.displayName}} </a></td><td>{% if isAdmin %}<a href="/gamesedit?gameID={{game.key}}">{% endif %}{% if game.played %} {{game.homeGoals}} - {{game.awayGoals}} {% else %} TBD {% endif %}{% if isAdmin %}</a>{% endif %}</td>
+			</tr>
+		{% endfor%}
+	</table>
+	</div>
+{% endblock %}

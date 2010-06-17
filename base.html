@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<link type=text/css rel=stylesheet href="/stylesheets/main.css">
+	<link type=text/css rel=stylesheet href="/stylesheets/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 	<title>{% block title %}IS SWERAP World Cup Betting {% endblock %}</title>
 	<meta name="generator" content="TextMate http://macromates.com/">
@@ -16,11 +16,11 @@
 <body>
 	<div id=outer>
 		<div id=userDiv>
-			<div id=userName>{{user.nickname}}</div>
-			<div id=logoutDiv><a href="{{loginurl}}">{{loginurl_text}}</a></div>
+			{{user.nickname}}<a href="{{loginurl}}">{{loginurl_text}}</a>
 		</div>
 		<div id=menu>
-			<div><a href='/'>Leaderboard</a></div>
+			<a href='/'>Leaderboard</a>
+			<a href='/games'>Games</a>
 			{% if isAdmin %}<div><a href='/basicdataload'>Load basic data...</a></div>{% endif %}
 			{% if isAdmin %}<div><a href='/calculatescore'>Recalculate...</a></div>{% endif %}
 		</div>
