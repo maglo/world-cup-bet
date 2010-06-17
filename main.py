@@ -38,6 +38,7 @@ class GameModel(db.Model):
 	homeTeam = db.ReferenceProperty(TeamModel, collection_name="homeTeam")
 	awayTeam = db.ReferenceProperty(TeamModel, collection_name="awayTeam")
 	played = db.BooleanProperty()
+	scored = db.BooleanProperty()
 	homeGoals = db.IntegerProperty()
 	awayGoals = db.IntegerProperty()
 	gameTime = db.DateTimeProperty()
@@ -46,7 +47,7 @@ class GameModel(db.Model):
 class PunterModel(db.Model):
 	user = db.UserProperty()
 	displayName = db.StringProperty()
-	score = db.IntegerProperty()
+	score = db.IntegerProperty(0)
 	rank = db.IntegerProperty()
 	prevRank = db.IntegerProperty()
 	ordinal = db.IntegerProperty()
@@ -57,6 +58,7 @@ class BetModel(db.Model):
 	homeGoals = db.IntegerProperty()
 	awayGoals = db.IntegerProperty()
 	score = db.IntegerProperty()
+	ordinal = db.IntegerProperty()
 
 class LeaderBoardModel(db.Model):
 	punter = db.ReferenceProperty(PunterModel)
@@ -123,6 +125,7 @@ class BetsHandler(webapp.RequestHandler):
 			logging.debug("punter " + punterID)
 			punter = db.get(db.Key(punterID))
 			bets = punter.betmodel_set
+			bets.order('-ordinal')
 			template_stuff = {'user': user,
 								'loginurl': loginurl,
 								'loginurl_text': loginurl_text,
@@ -134,6 +137,7 @@ class BetsHandler(webapp.RequestHandler):
 			game = db.get(db.Key(gameID))
 			logging.debug("game " + str(game.key()))
 			bets = game.betmodel_set
+			bets.order('-ordinal')
 			template_stuff = {'user': user,
 								'loginurl': loginurl,
 								'loginurl_text': loginurl_text,
@@ -177,53 +181,43 @@ class ScoreHandler(webapp.RequestHandler):
 		if not users.is_current_user_admin():
 			self.redirect('/')
 		else:
-			q = db.GqlQuery("SELECT __key__ FROM LeaderBoardModel")
-			for place in q:
-				db.delete(place)
+			q = db.GqlQuery("SELECT * FROM GameModel WHERE played = :played AND scored = :scored", played=True, scored=False)
+			game = q.get()
 			
-			bets = BetModel.all()
-			for bet in bets:
-				bet.score = 0
+			#for game in games:
+			logging.debug(game.homeTeam.displayName + "-" + game.awayTeam.displayName)
+			
+			for bet in game.betmodel_set:
+				score = 0
+				punter = bet.punter
+				
+				bettedResult = 0
+				if bet.homeGoals > bet.awayGoals:
+					bettedResult = 1
+				if bet.homeGoals < bet.awayGoals:
+					bettedResult = -1
+				
+				actualResult = 0
+				if game.homeGoals > game.awayGoals:
+					actualResult = 1
+				if game.homeGoals < game.awayGoals:
+					actualResult = -1
+				
+				if bettedResult == actualResult:
+					score += 2
+				
+				if game.homeGoals == bet.homeGoals and game.awayGoals == bet.awayGoals:
+					score += 4
+				
+				bet.score = score
 				bet.put()
 				
-			punters = PunterModel.all()
-			for punter in punters:
-				punter.score = 0
-				punter.prevRank = punter.rank
-				punter.rank = 0
+				punter.score += score
 				punter.put()
-			
-			games = GameModel.gql("WHERE played = true")
-			for game in games:
-				logging.debug(game.homeTeam.displayName + "-" + game.awayTeam.displayName)
-				for bet in game.betmodel_set:
-					score = 0
-					punter = bet.punter
-					
-					bettedResult = 0
-					if bet.homeGoals > bet.awayGoals:
-						bettedResult = 1
-					if bet.homeGoals < bet.awayGoals:
-						bettedResult = -1
-					
-					actualResult = 0
-					if game.homeGoals > game.awayGoals:
-						actualResult = 1
-					if game.homeGoals < game.awayGoals:
-						actualResult = -1
-					
-					if bettedResult == actualResult:
-						score += 2
-					
-					if game.homeGoals == bet.homeGoals and game.awayGoals == bet.awayGoals:
-						score += 4
-					
-					bet.score = score
-					bet.put()
-					
-					punter.score += score
-					punter.put()
-					
+				
+			game.scored = True
+			game.put()
+				
 			self.redirect('/')
 					
 class BasicDataHandler2(webapp.RequestHandler):
@@ -311,6 +305,8 @@ class BasicDataHandler(webapp.RequestHandler):
 					gameobj.awayTeam = teamlist[away]
 					gameobj.gameTime = datetime.datetime.strptime(date, "%b %d, %Y %H:%M")
 					gameobj.ordinal = gamecursor
+					gameobj.played = False
+					gameobj.scored = False
 					gameobj.put()
 					gamecursor += 1
 				
@@ -371,10 +367,20 @@ class BasicDataHandler(webapp.RequestHandler):
 					tmp = PunterModel()
 					tmp.displayName = punter
 					tmp.ordinal = puntercursor
+					tmp.score = 0
 					tmp.put()
 					puntercursor += 1
 				
 				self.redirect('/basicdataload')
+			if op == "clearbets":
+				q = db.GqlQuery("SELECT __key__ FROM BetModel")
+				punters = PunterModel.all()
+				for bet in q:
+					db.delete(bet)
+				for punter in punters:
+					punter.score = 0
+					punter.put()
+				
 			
 			if op == "bets":
 					
@@ -435,6 +441,7 @@ class BasicDataHandler(webapp.RequestHandler):
 				for game in games:
 					logging.debug("RUNNING GAME")
 					betcursor = 0
+					ordinalcursor = 0
 					for punter in punters:
 						bet = BetModel()
 						bet.game = game
@@ -443,6 +450,8 @@ class BasicDataHandler(webapp.RequestHandler):
 						betcursor += 1
 						bet.awayGoals = bets[gamecursor.ordinal - 12][betcursor]
 						betcursor += 1
+						bet.ordinal = ordinalcursor
+						ordinalcursor += 1
 						bet.put()
 				
 				gamecursor.ordinal += 1
