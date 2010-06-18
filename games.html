@@ -4,8 +4,11 @@
 	<h2>Games</h2>
 	<table>
 		{% for game in games %}
-			<tr>
-				<td>{{game.gameTime}}</td><td><a href='bets?gameID={{game.key}}'>{{game.homeTeam.displayName}} - {{game.awayTeam.displayName}} </a></td><td>{% if isAdmin %}<a href="/gamesedit?gameID={{game.key}}">{% endif %}{% if game.played %} {{game.homeGoals}} - {{game.awayGoals}} {% else %} TBD {% endif %}{% if isAdmin %}</a>{% endif %}</td>
+		{% if forloop.first %}<tr class=ttitle><td>Time</td><td>Contestants</td><td>Score</td></tr> {% endif %}
+			<tr class={% cycle odd,even %}>
+				<td>{{game.gameTime}}</td>
+				<td><a href='bets?gameID={{game.key}}'>{{game.homeTeam.displayName}} - {{game.awayTeam.displayName}} </a></td>
+				<td>{% if isAdmin %}<a href="/gamesedit?gameID={{game.key}}">{% endif %}{% if game.played %} {{game.homeGoals}} - {{game.awayGoals}} {% else %} TBD {% endif %}{% if isAdmin %}</a>{% endif %}</td>
 			</tr>
 		{% endfor%}
 	</table>
