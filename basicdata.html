@@ -1,20 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
+{% extends "base.html" %}
+{% block title %}Basicdata{% endblock %}
+{% block content %}
+	<ul>
+	<li><a href="/basicdataload?op=punters">Load punters</a>
+	<div id=hiddenbox>
 
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>basicdata</title>
-	<meta name="generator" content="TextMate http://macromates.com/">
-	<meta name="author" content="Magnus Lööf">
-	<!-- Date: 2010-06-17 -->
-</head>
-<body>
-<a href="/basicdataload?op=punters">Load punters</a>
-<a href="/basicdataload?op=teams">Load teams</a>
-<a href="/basicdataload?op=games">Load games</a>
-<a href="/basicdataload?op=bets">Load bets</a>
-<a href="/basicdataload?op=clearbets">Clear bets</a>
-<P>Version 12
-</body>
-</html>
+	<li><a href="/basicdataload?op=teams">Load teams</a>
+	<li><a href="/basicdataload?op=games">Load games</a>
+	<li><a href="/basicdataload?op=bets">Load bets</a>
+	<li><a href="/basicdataload?op=clearbets">Clear bets</a>
+	</ul>
+	<p>Version 12
+{% endblock %}

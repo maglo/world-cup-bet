@@ -232,14 +232,46 @@ class BasicDataHandler(webapp.RequestHandler):
 		if not users.is_current_user_admin():
 			self.error(401)
 		else:
-			op = self.request.get('op')
-			punters = ["Gosta G","Lasse Dahl","Marina S","Thomas Hedstom","Hakan Jarl","Anders Astrom","Peter Tuveland","Johnny Nilsson","Helene Spals","Cecilia B","Mats kjellberg","Henke S","Jerker N","Leif Jonsson","Jonas Karlsson","Janne Jonsson","Andreas Lundstrom","Magnus Loof","Kim W","Hjalmar Wallander","Johan Berg","Andreas Ohrn","Peter Lofgren","Magnus Larsson","Magnus Jansson","Ingemar Gardell","Tommy Lund","Anders Haglund","Nicklas Haglund","Fredrik Jansson","Peter Bentinger","Johan Wallander","Andreas Karstrom"]
+			user = users.get_current_user()
+			loginurl = users.create_logout_url(self.request.uri)
+			loginurl_text = "Logout..."
 							
-			if op == "games":
-				q = db.GqlQuery("SELECT __key__ FROM GameModel")
-				for game in q:
-					db.delete(game)
+			op = self.request.get('op')
 				
+			punters = ["Gosta G",
+				   "Lasse Dahl",
+				   "Marina S",
+				   "Thomas Hedstom",
+				   "Hakan Jarl",
+				   "Anders Astrom",
+				   "Peter Tuveland",
+				   "Johnny Nilsson",
+				   "Helene Spals",
+				   "Cecilia B",
+				   "Mats kjellberg",
+				   "Henke S",
+				   "Jerker N",
+				   "Leif Jonsson",
+				   "Jonas Karlsson",
+				   "Janne Jonsson",
+				   "Andreas Lundstrom",
+				   "Magnus Loof",
+				   "Kim W",
+				   "Hjalmar Wallander",
+				   "Johan Berg",
+				   "Andreas Ohrn",
+				   "Peter Lofgren",
+				   "Magnus Larsson",
+				   "Magnus Jansson",
+				   "Ingemar Gardell",
+				   "Tommy Lund",
+				   "Anders Haglund",
+				   "Nicklas Haglund",
+				   "Fredrik Jansson",
+				   "Peter Bentinger",
+				   "Johan Wallander",
+				   "Andreas Karstrom",
+				   ]
 				gameslist = [("South Africa","Mexico","Jun 11, 2010 13:30"),
 							("Uruguay","France","Jun 12, 2010 16:00"),
 							("Argentina","Nigeria","Jun 12, 2010 13:30"),
@@ -289,6 +321,11 @@ class BasicDataHandler(webapp.RequestHandler):
 							("Chile","Spain","Jun 26, 2010 16:00"),
 							("Switzerland","Honduras","Jun 26, 2010 16:00"),
 				]
+				
+			if op == "games":
+				q = db.GqlQuery("SELECT __key__ FROM GameModel")
+				for game in q:
+					db.delete(game)
 				
 				teams = TeamModel.all()
 				teamlist = {}
@@ -461,7 +498,11 @@ class BasicDataHandler(webapp.RequestHandler):
 				self.redirect('/basicdataload?' + str(gamecursor.ordinal))
 
 			path = os.path.join(os.path.dirname(__file__), 'basicdata.html')
-			self.response.out.write(template.render(path,{}))
+			template_stuff = {'user': user,
+					  'loginurl': loginurl,
+					  'loginurl_text': loginurl_text,
+					  }
+			self.response.out.write(template.render(path, template_stuff))
 
 
 class MainHandler(webapp.RequestHandler):
@@ -504,7 +545,6 @@ def main():
 	logging.getLogger().setLevel(logging.DEBUG)
 	
 	util.run_wsgi_app(application)
-
 
 if __name__ == '__main__':
     main()
