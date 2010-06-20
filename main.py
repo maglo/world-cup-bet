@@ -272,6 +272,7 @@ class BasicDataHandler(webapp.RequestHandler):
 				   "Johan Wallander",
 				   "Andreas Karstrom",
 				   ]
+
 			gameslist = [("South Africa","Mexico","Jun 11, 2010 13:30"),
 						("Uruguay","France","Jun 12, 2010 16:00"),
 						("Argentina","Nigeria","Jun 12, 2010 13:30"),
@@ -321,6 +322,7 @@ class BasicDataHandler(webapp.RequestHandler):
 						("Chile","Spain","Jun 26, 2010 16:00"),
 						("Switzerland","Honduras","Jun 26, 2010 16:00"),
 			]
+
 				
 			if op == "games":
 				q = db.GqlQuery("SELECT __key__ FROM GameModel")
