@@ -25,7 +25,9 @@ background-color: #fff;
 }
 .scoreClass2{
 	color: #780000;
+	font-weight: bold;
 }
 .scoreClass6{
-	color: #980000;
+	color: #c80000;
+	font-weight: bold;
 }
