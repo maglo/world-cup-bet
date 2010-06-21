@@ -1,24 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
-
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<link type=text/css rel=stylesheet href="/stylesheets/main.css">
-	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-	<title>{% block title %}Edit Game{% endblock %}</title>
-	<meta name="generator" content="TextMate http://macromates.com/">
-	<meta name="author" content="Magnus Lööf">
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" />
-	<script type="text/javascript" src="lib/functions.js"/>
-	<!-- Date: 2010-06-15 -->
-</head>
-<body>
-<form name="editGame" method="post">
+{% extends "base.html" %}
+{% block title %}Edit game{% endblock %}
+{% block content %}
+<form name="editGame" method="post" style="form{text-align:left;}">
 	{{ game.homeTeam.displayName }} - {{game.awayTeam.displayName}}
 	<input type="text" name="homeGoals" /> - <input type="text" name="awayGoals" />
 	<input type="hidden" name="gameID" value="{{gameID}}"/>
 	<input type="submit" value="Save" />
 </form>
-</body>
-</html>
+{% endblock %}
