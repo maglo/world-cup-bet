@@ -17,10 +17,10 @@
 <table>
 	{% for bet in bets %}
 	{% if forloop.first %}<tr class=ttitle><td>&nbsp;</td><td>Result</td><td>Points</td></tr> {% endif %}
-	<tr class={% cycle odd,even %}>
+	<tr class="{% cycle odd,even %} scoreClass{{bet.score}}">
 		<td>{% if game %}{{bet.punter.displayName}}{% endif %} {% if punter %} {{bet.game.homeTeam.displayName}} - {{bet.game.awayTeam.displayName}} {% endif %}</td>
 		<td> {{bet.homeGoals}}-{{bet.awayGoals}}</td>
-		<td>({{bet.score}})</td>
+		<td>{% ifnotequal bet.score None %} {{bet.score}} {% else %} - {% endifnotequal %}</td>
 	</tr>
 	{% endfor%}
 </table>

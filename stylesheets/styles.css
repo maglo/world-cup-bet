@@ -17,3 +17,15 @@ background-color: #eee;
 .odd {
 background-color: #fff;
 }
+.scoreClassNone{
+	color: #989898;
+}
+.scoreClass0{
+	color: #000000;
+}
+.scoreClass2{
+	color: #780000;
+}
+.scoreClass6{
+	color: #980000;
+}
