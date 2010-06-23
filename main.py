@@ -65,11 +65,6 @@ class GamesEditHandler(webapp.RequestHandler):
 				path = os.path.join(os.path.dirname(__file__), 'editgame.html')
 				self.response.out.write(template.render(path, template_stuff))
 
-class LeaderboardHandler(webapp.RequestHandler):
-	def get(self):
-		self.response.out.write('Hello world!')
-
-
 class BetsHandler(webapp.RequestHandler):
 	def get(self):
 		punterID = self.request.get('punterID')
