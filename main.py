@@ -185,11 +185,6 @@ class ScoreHandler(webapp.RequestHandler):
 			game.put()
 				
 			self.redirect('/')
-					
-class BasicDataHandler2(webapp.RequestHandler):
-	def get(self):
-		taskqueue.add(url='/basicdataloadWorker')
-		self.redirect('/')
 
 def main():
 	application = webapp.WSGIApplication([('/', MainHandler),
