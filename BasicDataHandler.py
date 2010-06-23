@@ -183,6 +183,7 @@ class BasicDataHandler(webapp.RequestHandler):
 				for punter in q:
 					db.delete(punter)
 				
+				#TODO fixa bugg, bets kommer inte in i nummerordning, puntercursor borde persistenshanteras i datastore
 				puntercursor = 0
 				for punter in punters:
 					tmp = PunterModel()
