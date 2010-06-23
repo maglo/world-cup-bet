@@ -31,6 +31,7 @@ from models import *
 from BasicDataHandler import BasicDataHandler
 from MainHandler import MainHandler
 from ScoreHandler import ScoreHandler
+from GamesHandler import GamesHandler
 
 class GamesEditHandler(webapp.RequestHandler):
 	
@@ -112,34 +113,9 @@ class BetsHandler(webapp.RequestHandler):
 
 		path = os.path.join(os.path.dirname(__file__), 'bets.html')
 		self.response.out.write(template.render(path, template_stuff))
-		
-class GamesHandler(webapp.RequestHandler):
-	def get(self):
-		games = GameModel.gql('ORDER BY ordinal')
-		
-		user = users.get_current_user()
-		if user:
-			loginurl = users.create_logout_url(self.request.uri)
-			loginurl_text = "Logout..."
-		else:
-			loginurl = users.create_login_url(self.request.uri)
-			loginurl_text = "Login"
-		
-		template_stuff = {'user': user,
-							'loginurl': loginurl,
-							'loginurl_text': loginurl_text,
-							'games': games,
-							'isAdmin': users.is_current_user_admin(),
-							#'punter': punter,
-							#'bets': bets,
-							#'leaderboard': leaderboard,
-						}
-		path = os.path.join(os.path.dirname(__file__), 'games.html')
-		self.response.out.write(template.render(path, template_stuff))
 
 def main():
 	application = webapp.WSGIApplication([('/', MainHandler),
-	('/leaderboard',LeaderboardHandler),
 	('/bets',BetsHandler),
 	('/games',GamesHandler),
 	('/gamesedit',GamesEditHandler),
