@@ -281,7 +281,7 @@ class BasicDataHandler(webapp.RequestHandler):
 				
 				self.redirect('/basicdataload?' + str(gamecursor.ordinal))
 
-			path = os.path.join(os.path.dirname(__file__), 'basicdata.html')
+			path = os.path.join(os.path.dirname(__file__), 'templates/basicdata.html')
 			template_stuff = {'user': user,
 					  'loginurl': loginurl,
 					  'loginurl_text': loginurl_text,

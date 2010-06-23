@@ -54,5 +54,5 @@ class BetsHandler(webapp.RequestHandler):
 								#'leaderboard': leaderboard,
 							}
 
-		path = os.path.join(os.path.dirname(__file__), 'bets.html')
+		path = os.path.join(os.path.dirname(__file__), 'templates/bets.html')
 		self.response.out.write(template.render(path, template_stuff))

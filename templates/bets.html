@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+
+{% block title %}{% if punter %}Bets for {{punter.displayName}}{% endif %}{% if game %}Bets for {{game.homeTeam.displayName}} - {{game.awayTeam.displayName}}{% endif %}{% endblock %}
+
+{% block content %}
+{% if punter %}
+<h1>{{punter.displayName}} </h1>
+<h3>Total score: {{punter.score}}</h3>
+<h3>Rank: {{punter2.rank}} ({{punter.prevRank}})</h3>
+{% endif %}
+{% if game %}
+<h1>{{game.homeTeam.displayName}} - {{game.awayTeam.displayName}}</h1>
+{% if game.played %}<h2>Score: {{game.homeGoals}}-{{game.awayGoals}}</h2>{% endif %}
+{% endif %}
+<div id=betsDiv>
+<h2>Bets</h2>
+<table>
+	{% for bet in bets %}
+	{% if forloop.first %}<tr class=ttitle><td>&nbsp;</td><td width=60>Bet</td>{% if punter %}<td width=60>Actual</td>{% endif %}<td width=60>Points</td</tr> {% endif %}
+	<tr class="{% cycle odd,even %} scoreClass{{bet.score}}">
+		<td>{% if game %}{{bet.punter.displayName}}{% endif %} {% if punter %} {{bet.game.homeTeam.displayName}} - {{bet.game.awayTeam.displayName}} {% endif %}</td>
+		<td> {{bet.homeGoals}}-{{bet.awayGoals}}</td>
+		{% if punter %}<td>{% ifnotequal bet.score None %} {{bet.game.homeGoals}}-{{bet.game.awayGoals}}{% else %} TBD {% endifnotequal %}</td>{% endif %}
+		<td>{% ifnotequal bet.score None %} {{bet.score}} {% else %} - {% endifnotequal %}</td>
+	</tr>
+	{% endfor%}
+</table>
+</div>
+{% endblock %}

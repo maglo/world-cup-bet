@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+	<div id=puntersDiv>
+	<h2>Leaderboard</h2>
+	<table>
+		{% for punter in punters %}
+			{% if forloop.first %}<tr class=ttitle><td>Position</td><td>Name</td><td>Score</td></tr> {% endif %}
+			<tr class={% cycle odd,even %}><td>{{ forloop.counter }}</td><td><a href="/bets?punterID={{punter.key}}">{{punter.displayName}}</a></td><td>{{punter.score}}</td></tr>
+		{% endfor%}
+	</table>
+	</div>
+{% endblock %}
+

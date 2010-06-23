@@ -16,7 +16,7 @@ class GamesEditHandler(webapp.RequestHandler):
 			gameID = self.request.get("gameID")
 			game = db.get(db.Key(gameID))
 			template_stuff = {'gameID': gameID , 'game': game}
-			path = os.path.join(os.path.dirname(__file__), 'editgame.html')
+			path = os.path.join(os.path.dirname(__file__), 'templates/editgame.html')
 			self.response.out.write(template.render(path, template_stuff))
 		
 	def post(self):
@@ -36,5 +36,5 @@ class GamesEditHandler(webapp.RequestHandler):
 				
 				self.redirect("/")
 			except (TypeError, ValueError):
-				path = os.path.join(os.path.dirname(__file__), 'editgame.html')
+				path = os.path.join(os.path.dirname(__file__), 'templates/editgame.html')
 				self.response.out.write(template.render(path, template_stuff))

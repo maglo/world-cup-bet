@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link type=text/css rel=stylesheet href="/stylesheets/phenom.css">
+	<link type=text/css rel=stylesheet href="/stylesheets/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<title>{% block title %}IS SWERAP World Cup Betting {% endblock %}</title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Magnus Lööf">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script type="test/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="lib/functions.js"></script>
+	<!-- Date: 2010-06-15 -->
+</head>
+<body>
+		<div id=loginbox>
+			<img src="images/utvcbettinglogo.jpg">
+			{{user.nickname}}<br>
+			<a href="{{loginurl}}">{{loginurl_text}}</a>
+		</div>
+		<div id=navbar>
+			<a href='/'>Leaderboard</a>
+			<a href='/games'>Games</a>
+		</div>
+		{% if isAdmin %}
+		<div id=adminbox>
+			<a href='/basicdataload'>Load basic data...</a>
+			<a href='/calculatescore'>Recalculate...</a>
+		</div>
+		{% endif %}
+		<div id=main>
+			{% block content %}{% endblock %}
+	</div>
+</body>
+</html>
