@@ -15,7 +15,6 @@ class ScoreHandler(webapp.RequestHandler):
 			q = db.GqlQuery("SELECT * FROM GameModel WHERE played = :played AND scored = :scored", played=True, scored=False)
 			game = q.get()
 			
-			
 			if not game:
 				logging.debug("NONE")
 				self.redirect('/')
