@@ -23,18 +23,23 @@ class GamesEditHandler(webapp.RequestHandler):
 		user = users.get_current_user()
 		if not user:
 			self.error(401)
-		else:
-			try:
-				gameID = self.request.get("gameID")
-				homeGoals = int(self.request.get("homeGoals"))
-				awayGoals = int(self.request.get("awayGoals"))
-				game = db.get(db.Key(gameID))
-				game.homeGoals = homeGoals
-				game.awayGoals = awayGoals
-				game.played = True
-				game.put()
-				
-				self.redirect("/")
-			except (TypeError, ValueError):
-				path = os.path.join(os.path.dirname(__file__), 'templates/editgame.html')
-				self.response.out.write(template.render(path, template_stuff))
+			return
+			
+		if not users.is_current_user_admin():
+			self.error(401)
+			return
+			
+		try:
+			gameID = self.request.get("gameID")
+			homeGoals = int(self.request.get("homeGoals"))
+			awayGoals = int(self.request.get("awayGoals"))
+			game = db.get(db.Key(gameID))
+			game.homeGoals = homeGoals
+			game.awayGoals = awayGoals
+			game.played = True
+			game.put()
+			
+			self.redirect("/")
+		except (TypeError, ValueError):
+			path = os.path.join(os.path.dirname(__file__), 'templates/editgame.html')
+			self.response.out.write(template.render(path, template_stuff))
