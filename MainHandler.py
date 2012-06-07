@@ -12,7 +12,7 @@ class MainHandler(webapp.RequestHandler):
 			loginurl_text = "Logout..."
 		else:
 			loginurl = users.create_login_url(self.request.uri)
-			loginurl_text = "Login"
+			loginurl_text = "Login or Register"
 		
 		#logging.debug(loginurl)
 		games = GameModel.gql('ORDER BY gameTime')

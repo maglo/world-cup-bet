@@ -3,8 +3,17 @@ from google.appengine.ext import db
 class BetCursor(db.Model):
 	ordinal = db.IntegerProperty()
 
-class TeamModel(db.Model):
+class TournamentModel(db.Model):
 	displayName = db.StringProperty()
+	betsAreOffDate = db.DateTimeProperty()
+	openingDate = db.DateTimeProperty()
+	description = db.StringProperty()
+	logo = db.StringProperty()
+	
+class TeamModel(db.Model):
+	tournament = db.ReferenceProperty(TournamentModel)
+	displayName = db.StringProperty()
+	logo = db.StringProperty()
 
 class GameModel(db.Model):
 	homeTeam = db.ReferenceProperty(TeamModel, collection_name="homeTeam")
